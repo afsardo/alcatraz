@@ -81,11 +81,16 @@ To solve both these issues, we have produced `rust-optimizer`, a docker image to
 produce an extremely small build output in a consistent manner. The suggest way
 to run it is this:
 
+### Linux\MacOS (Intel based optimizer)
+
 ```sh
-docker run --rm -v "$(pwd)":/code \
-  --mount type=volume,source="$(basename "$(pwd)")_cache",target=/code/target \
-  --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
-  cosmwasm/rust-optimizer:0.11.4
+docker run --rm -v "$(pwd)":/code --mount type=volume,source="$(basename "$(pwd)")_cache",target=/code/target --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry cosmwasm/rust-optimizer:0.12.9
+```
+
+### MacOS (ARM64 based optimizer)
+
+```sh
+docker run --rm -v "$(pwd)":/code --mount type=volume,source="$(basename "$(pwd)")_cache",target=/code/target --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry cosmwasm/rust-optimizer-arm64:0.12.8
 ```
 
 We must mount the contract code to `/code`. You can use a absolute path instead
@@ -105,3 +110,18 @@ The wasm file is compiled deterministically (anyone else running the same
 docker on the same git commit should get the identical file with the same Sha256 hash).
 It is also stripped and minimized for upload to a blockchain (we will also
 gzip it in the uploading process to make it even smaller).
+
+
+## Deploying contracts
+
+Once you have a contract compiled and ready to go, you can deploy it to a blockchain.
+
+```bash
+seid tx wasm store ./artifacts/cw20_token-aarch64.wasm -y --from=afsardo --chain-id=sei-chain --gas=10000000 --fees=10000000usei --broadcast-mode=block
+
+seid tx wasm instantiate 1 '{"name":"Cigarettes","symbol":"CIGS","decimals":6,"initial_balances":[],"marketing":{"project":"Alcatraz"}}' --chain-id sei-chain --from=afsardo --gas=4000000 --fees=1000000usei --broadcast-mode=block --label "alcatraz/cw20-token" --no-admin
+
+seid tx wasm store ./artifacts/cw20_pot-aarch64.wasm -y --from=afsardo --chain-id=sei-chain --gas=10000000 --fees=10000000usei --broadcast-mode=block
+
+seid tx wasm instantiate 2 '{"admin":"sei1yhwgrr5fxkud5a0vatd2583m5u66268v9anj0t","cw20_addr":"sei1hrpna9v7vs3stzyd4z3xf00676kf78zpe2u5ksvljswn2vnjp3yslucc3n"}' --chain-id sei-chain --from=afsardo --gas=4000000 --fees=1000000usei --broadcast-mode=block --label "alcatraz/cw20-pot" --no-admin
+```

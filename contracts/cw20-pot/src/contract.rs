@@ -12,7 +12,7 @@ use crate::state::{save_pot, Config, Pot, CONFIG, POTS, POT_SEQ};
 use cw20::{Cw20Contract, Cw20ExecuteMsg, Cw20ReceiveMsg};
 
 // version info for migration info
-const CONTRACT_NAME: &str = "crates.io:cw20-example";
+const CONTRACT_NAME: &str = "alcatraz:cw20-pot";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[cfg_attr(not(feature = "library"), entry_point)]
